@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -29,27 +30,33 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signInWithGoogle = async () => {
+    setAuthLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           // Redirect to the current page after login (or specify a route)
-          redirectTo: window.location.origin, 
+          redirectTo: window.location.origin,
         },
       });
       if (error) throw error;
     } catch (error) {
       console.error('Error signing in with Google:', error);
       alert('Failed to sign in. Please check your configuration.');
+    } finally {
+      setAuthLoading(false);
     }
   };
 
   const signOut = async () => {
+    setAuthLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error) {
       console.error('Error signing out:', error);
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -58,7 +65,8 @@ export const AuthProvider = ({ children }) => {
     user,
     signInWithGoogle,
     signOut,
-    loading
+    loading,
+    authLoading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

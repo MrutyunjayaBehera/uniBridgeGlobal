@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Explore from './pages/Explore';
@@ -6,12 +6,23 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import AIChat from './components/AIChat';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import ConfirmModal from './components/shared/ConfirmModal';
+import LoadingModal from './components/shared/LoadingModal';
 import { GraduationCap, LayoutGrid, Sparkles, User, Menu, X, LogOut } from 'lucide-react';
 
 const Navbar = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, authLoading } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
   
@@ -22,7 +33,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <nav className={`sticky top-0 z-40 transition-colors duration-300 ${isScrolled ? 'bg-white/70 border-b border-slate-200 shadow-sm backdrop-blur-sm' : 'bg-transparent border-b border-transparent'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -62,13 +73,26 @@ const Navbar = () => {
                       <span className="text-[10px] text-slate-500">Student</span>
                    </div>
                 </div>
-                <button 
-                  onClick={() => signOut()}
-                  className="p-2 text-slate-400 hover:text-red-500 transition-colors"
-                  title="Sign Out"
-                >
-                  <LogOut size={18} />
-                </button>
+                <>
+                  <button 
+                    onClick={() => setConfirmOpen(true)}
+                    className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut size={18} />
+                  </button>
+                  <ConfirmModal
+                    open={confirmOpen}
+                    title="Confirm Sign Out"
+                    message="Are you sure you want to sign out?"
+                    confirmLabel="Sign Out"
+                    onCancel={() => setConfirmOpen(false)}
+                    onConfirm={async () => {
+                      setConfirmOpen(false);
+                      await signOut();
+                    }}
+                  />
+                </>
               </div>
             ) : (
               <Link to="/login" className="px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition-colors">
@@ -119,13 +143,26 @@ const Navbar = () => {
                        </div>
                        <span className="text-sm font-medium text-slate-700">{user.email}</span>
                    </div>
-                   <button 
-                     onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
-                     className="w-full flex items-center gap-3 px-3 py-3 text-red-600 hover:bg-red-50 rounded-md"
-                   >
-                     <LogOut size={20} />
-                     Sign Out
-                   </button>
+                   <>
+                     <button 
+                       onClick={() => { setIsMobileMenuOpen(false); setConfirmOpen(true); }}
+                       className="w-full flex items-center gap-3 px-3 py-3 text-red-600 hover:bg-red-50 rounded-md"
+                     >
+                       <LogOut size={20} />
+                       Sign Out
+                     </button>
+                     <ConfirmModal
+                       open={confirmOpen}
+                       title="Confirm Sign Out"
+                       message="Are you sure you want to sign out?"
+                       confirmLabel="Sign Out"
+                       onCancel={() => setConfirmOpen(false)}
+                       onConfirm={async () => {
+                         setConfirmOpen(false);
+                         await signOut();
+                       }}
+                     />
+                   </>
                 </div>
               ) : (
                 <Link 
@@ -147,7 +184,7 @@ const Navbar = () => {
 
 const Layout = ({ children }) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, authLoading } = useAuth();
 
   return (
     <div className="min-h-screen bg-surface flex flex-col font-sans">
@@ -185,6 +222,7 @@ const Layout = ({ children }) => {
           </div>
         </div>
       </footer>
+      <LoadingModal open={authLoading} message="Signing in / Signing out..." />
     </div>
   );
 };

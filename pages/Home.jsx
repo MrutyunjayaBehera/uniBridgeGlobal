@@ -120,6 +120,14 @@ const Home = () => {
           </button>
         </div>
       </section>
+
+      {/* Partners quick link */}
+      <section className="partners-quick-link py-10 text-center">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-slate-700 mb-4">Curious about our partners? Explore a rotating showcase of top universities we work with.</p>
+          <Link to="/partners" className="inline-block px-6 py-3 bg-gradient-to-r from-sky-500 to-violet-500 text-white font-semibold rounded-full shadow-lg hover:scale-[1.02] transition-transform">View University Partners</Link>
+        </div>
+      </section>
     </div>
   );
 };

@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ConfirmModal from './components/shared/ConfirmModal';
 import LoadingModal from './components/shared/LoadingModal';
 import { GraduationCap, LayoutGrid, Sparkles, User, Menu, X, LogOut } from 'lucide-react';
+import Partners from './pages/Partners';
 
 const Navbar = () => {
   const location = useLocation();
@@ -218,7 +219,7 @@ const Layout = ({ children }) => {
           <div className="mt-4 flex justify-center gap-6 text-slate-400 text-sm">
              <a href="#" className="hover:text-primary">Privacy Policy</a>
              <a href="#" className="hover:text-primary">Terms of Service</a>
-             <a href="#" className="hover:text-primary">University Partners</a>
+             <Link to="/partners" className="hover:text-primary">University Partners</Link>
           </div>
         </div>
       </footer>
@@ -237,6 +238,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/partners" element={<Partners />} />
             <Route path="/login" element={<Login />} />
           </Routes>
         </Layout>

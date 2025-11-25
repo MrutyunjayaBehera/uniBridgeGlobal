@@ -10,6 +10,7 @@ import ConfirmModal from './components/shared/ConfirmModal';
 import LoadingModal from './components/shared/LoadingModal';
 import { GraduationCap, LayoutGrid, Sparkles, User, Menu, X, LogOut } from 'lucide-react';
 import Partners from './pages/Partners';
+import UniversityOnboarding from './pages/UniversityOnboarding';
 
 const Navbar = () => {
   const location = useLocation();
@@ -239,6 +240,7 @@ export default function App() {
             <Route path="/explore" element={<Explore />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/partners" element={<Partners />} />
+            <Route path="/university-onboarding" element={<UniversityOnboarding />} />
             <Route path="/login" element={<Login />} />
           </Routes>
         </Layout>

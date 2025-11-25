@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Globe, Users, ShieldCheck, GraduationCap } from 'lucide-react';
 import AnimatedCounter from '../components/shared/AnimatedCounter';
+import { MOCK_UNIVERSITIES } from '../constants';
 import '../styles/Home.css';
 
 const Home = () => {
@@ -29,7 +30,7 @@ const Home = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <Link 
               to="/explore" 
-              className="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl shadow-lg hover:shadow-xl hover:bg-slate-50 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 animate-pulse-glow"
+              className="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl shadow-lg hover:shadow-xl hover:bg-slate-50 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 animate-attention animate-pulse-glow"
             >
               Start Exploring <ArrowRight size={20} />
             </Link>
@@ -40,6 +41,17 @@ const Home = () => {
               Track Applications
             </Link>
           </div>
+          {/* Country marquee beneath hero CTA */}
+          {/* <div className="country-marquee-wrapper">
+            <div className="country-marquee-track" aria-hidden>
+              {Array.from(new Set(MOCK_UNIVERSITIES.map(u => u.country))).map((c) => (
+                <div key={c + '-1'} className="country-bubble">{c}</div>
+              ))}
+              {Array.from(new Set(MOCK_UNIVERSITIES.map(u => u.country))).map((c) => (
+                <div key={c + '-2'} className="country-bubble">{c}</div>
+              ))}
+            </div>
+          </div> */}
         </div>
       </section>
 

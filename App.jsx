@@ -3,12 +3,14 @@ import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-ro
 import Home from './pages/Home';
 import Explore from './pages/Explore';
 import Dashboard from './pages/Dashboard';
+import StudentDashboard from './pages/StudentDashboard';
+import UniversityDashboard from './pages/UniversityDashboard';
 import Login from './pages/Login';
 import AIChat from './components/AIChat';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ConfirmModal from './components/shared/ConfirmModal';
 import LoadingModal from './components/shared/LoadingModal';
-import { GraduationCap, LayoutGrid, Sparkles, User, Menu, X, LogOut } from 'lucide-react';
+import { GraduationCap, LayoutGrid, Sparkles, User, Menu, X, LogOut, Building2 } from 'lucide-react';
 import Partners from './pages/Partners';
 import UniversityOnboarding from './pages/UniversityOnboarding';
 
@@ -17,6 +19,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut, authLoading } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
+  const userRole = user?.user_metadata?.role || 'student';
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 8);
@@ -28,11 +31,19 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
   
-  const navLinks = [
+  const studentLinks = [
     { name: 'Home', path: '/', icon: GraduationCap },
     { name: 'Explore', path: '/explore', icon: LayoutGrid },
     { name: 'Dashboard', path: '/dashboard', icon: User },
   ];
+
+  const universityLinks = [
+    { name: 'Home', path: '/', icon: Building2 },
+    { name: 'Dashboard', path: '/university-dashboard', icon: User },
+    { name: 'Onboarding', path: '/university-onboarding', icon: LayoutGrid },
+  ];
+
+  const navLinks = userRole === 'university' ? universityLinks : studentLinks;
 
   return (
     <nav className={`sticky top-0 z-40 transition-colors duration-300 ${isScrolled ? 'bg-white/70 border-b border-slate-200 shadow-sm backdrop-blur-sm' : 'bg-transparent border-b border-transparent'}`}>
@@ -71,8 +82,8 @@ const Navbar = () => {
                      {user.email ? user.email[0].toUpperCase() : 'U'}
                    </div>
                    <div className="flex flex-col">
-                      <span className="text-xs font-bold text-slate-700 max-w-[100px] truncate">{user.user_metadata.full_name || user.email}</span>
-                      <span className="text-[10px] text-slate-500">Student</span>
+                      <span className="text-xs font-bold text-slate-700 max-w-[100px] truncate">{user.user_metadata?.full_name || user.email}</span>
+                      <span className="text-[10px] text-slate-500">{userRole === 'university' ? 'University' : 'Student'}</span>
                    </div>
                 </div>
                 <>
@@ -238,7 +249,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<StudentDashboard />} />
+            <Route path="/university-dashboard" element={<UniversityDashboard />} />
             <Route path="/partners" element={<Partners />} />
             <Route path="/university-onboarding" element={<UniversityOnboarding />} />
             <Route path="/login" element={<Login />} />

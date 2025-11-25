@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import UniversityCard from '../components/UniversityCard';
 import { MOCK_UNIVERSITIES } from '../constants';
 import '../styles/Partners.css';
@@ -40,6 +41,18 @@ const Partners = () => {
               <UniversityCard university={u} onApply={() => alert(`Open ${u.name}`)} />
             </div>
           ))}
+        </section>
+
+        {/* CTA for universities to join */}
+        <section className="partners-cta mt-16 py-12 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border border-blue-100 text-center">
+          <h2 className="text-3xl font-bold text-slate-900 mb-4">Is Your University Interested in Joining?</h2>
+          <p className="text-slate-600 mb-8 max-w-2xl mx-auto">Become a partner and expand your reach to thousands of ambitious international students looking for quality education.</p>
+          <Link 
+            to="/university-onboarding" 
+            className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-lg hover:shadow-lg hover:scale-[1.02] transition-all"
+          >
+            Start Your Onboarding →
+          </Link>
         </section>
       </div>
     </div>

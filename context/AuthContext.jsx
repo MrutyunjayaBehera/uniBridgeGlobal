@@ -29,20 +29,69 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Google OAuth for Students
   const signInWithGoogle = async () => {
     setAuthLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          // Redirect to the current page after login (or specify a route)
           redirectTo: window.location.origin,
         },
       });
       if (error) throw error;
+      // Set role to 'student' in metadata
+      await supabase.auth.updateUser({
+        data: { role: 'student' }
+      });
     } catch (error) {
       console.error('Error signing in with Google:', error);
-      alert('Failed to sign in. Please check your configuration.');
+      throw new Error('Failed to sign in. Please check your configuration.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Email/Password signup for Universities
+  const signUpWithEmail = async (email, password, role) => {
+    setAuthLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { role }
+        }
+      });
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error signing up:', error);
+      throw new Error(error.message || 'Failed to sign up');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Email/Password signin for Universities
+  const signInWithEmail = async (email, password, role) => {
+    setAuthLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      // Update metadata with role if not present
+      if (data.user?.user_metadata?.role !== role) {
+        await supabase.auth.updateUser({
+          data: { role }
+        });
+      }
+      return data;
+    } catch (error) {
+      console.error('Error signing in:', error);
+      throw new Error(error.message || 'Failed to sign in');
     } finally {
       setAuthLoading(false);
     }
@@ -64,6 +113,8 @@ export const AuthProvider = ({ children }) => {
     session,
     user,
     signInWithGoogle,
+    signUpWithEmail,
+    signInWithEmail,
     signOut,
     loading,
     authLoading,

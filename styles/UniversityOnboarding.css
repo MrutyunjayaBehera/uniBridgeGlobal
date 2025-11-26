@@ -49,7 +49,7 @@
 .stepper-track::before {
   content: '';
   position: absolute;
-  top: 28px;
+  top: 44px;
   left: 0;
   right: 0;
   height: 2px;

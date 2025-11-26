@@ -11,10 +11,24 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Ensure a profile row exists for the signed-in user
+      if (session?.user) {
+        try {
+          await supabase.from('profiles').upsert({
+              id: session.user.id,
+              email: session.user.email,
+              full_name: session.user.user_metadata?.full_name || null,
+              role: session.user.user_metadata?.role || 'student',
+            });
+        } catch (err) {
+          console.warn('Failed to upsert profile on initial session:', err?.message || err);
+        }
+      }
     });
 
     // Listen for changes
@@ -24,6 +38,22 @@ export const AuthProvider = ({ children }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Upsert profile when auth state changes and we have a user
+      (async () => {
+        try {
+          if (session?.user) {
+            await supabase.from('profiles').upsert({
+              id: session.user.id,
+              email: session.user.email,
+              full_name: session.user.user_metadata?.full_name || null,
+              role: session.user.user_metadata?.role || 'student',
+            });
+          }
+        } catch (err) {
+          console.warn('Failed to upsert profile on auth change:', err?.message || err);
+        }
+      })();
     });
 
     return () => subscription.unsubscribe();
@@ -64,6 +94,20 @@ export const AuthProvider = ({ children }) => {
         }
       });
       if (error) throw error;
+      // Upsert profiles row for new user (if sign-up returns user)
+      try {
+        const user = data?.user;
+        if (user) {
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || null,
+            role: role || user.user_metadata?.role || 'student',
+          });
+        }
+      } catch (upsertErr) {
+        console.warn('Failed to upsert profile on signUp:', upsertErr?.message || upsertErr);
+      }
       return data;
     } catch (error) {
       console.error('Error signing up:', error);
@@ -87,6 +131,20 @@ export const AuthProvider = ({ children }) => {
         await supabase.auth.updateUser({
           data: { role }
         });
+      }
+      // Upsert profile for signed in user
+      try {
+        const user = data?.user;
+        if (user) {
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || null,
+            role: role || user.user_metadata?.role || 'student',
+          });
+        }
+      } catch (upsertErr) {
+        console.warn('Failed to upsert profile on signIn:', upsertErr?.message || upsertErr);
       }
       return data;
     } catch (error) {

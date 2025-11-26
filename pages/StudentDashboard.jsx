@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useUserProfile } from '../hooks/useUserProfile';
 import { Navigate } from 'react-router-dom';
 import { CheckCircle, Clock, XCircle, GraduationCap, BookOpen, Zap } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { userRole, loading: profileLoading } = useUserProfile();
   const [applications] = useState([
     {
       id: 1,
@@ -45,16 +47,25 @@ const Dashboard = () => {
   ]);
 
   // Redirect if not logged in or not a student
-  if (!loading && (!user || user.user_metadata?.role === 'university')) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4">
         <div className="text-slate-600 text-lg">Loading...</div>
       </div>
     );
+  }
+
+  // Wait for profile role to load before checking access
+  if (profileLoading || userRole === null) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center px-4">
+        <div className="text-slate-600 text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || userRole === 'university') {
+    return <Navigate to="/login" replace />;
   }
 
   const stats = {

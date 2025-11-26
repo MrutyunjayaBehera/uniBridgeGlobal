@@ -3,22 +3,29 @@ import { MOCK_UNIVERSITIES } from '../constants';
 import UniversityCard from '../components/UniversityCard';
 import { Search, Filter, Globe } from 'lucide-react';
 import { searchByFields, getUnique } from '../utils/pageHelpers';
+import { useSupabaseUniversities } from '../hooks/useSupabaseUniversities';
 
 const Explore = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('All');
+  const { universities: supabaseUniversities, loading: supabaseLoading, error: supabaseError } = useSupabaseUniversities();
+
+  // Combine Supabase universities with mock universities (Supabase first)
+  const allUniversities = useMemo(() => {
+    return [...(supabaseUniversities || []), ...MOCK_UNIVERSITIES];
+  }, [supabaseUniversities]);
 
   // Get unique countries
   const countries = useMemo(() => {
-    const allCountries = MOCK_UNIVERSITIES.map(u => u.country);
+    const allCountries = allUniversities.map(u => u.country);
     return ['All', ...getUnique(allCountries)];
-  }, []);
+  }, [allUniversities]);
 
   // Filter universities by search and country
   const filteredUniversities = useMemo(() => {
-    let result = searchByFields(MOCK_UNIVERSITIES, searchTerm, ['name', 'programs']);
+    let result = searchByFields(allUniversities, searchTerm, ['name', 'programs']);
     return result.filter(uni => selectedCountry === 'All' || uni.country === selectedCountry);
-  }, [searchTerm, selectedCountry]);
+  }, [searchTerm, selectedCountry, allUniversities]);
 
   const handleApply = (id) => {
     alert(`Applying to University ID: ${id}`);
@@ -66,6 +73,18 @@ const Explore = () => {
       </div>
 
       {/* Grid */}
+      {/* show small dev debug banner for supabase fetch status */}
+      {supabaseError && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-700 font-medium">Error loading universities from DB: {supabaseError}</p>
+        </div>
+      )}
+      {!supabaseError && !supabaseLoading && (!supabaseUniversities || supabaseUniversities.length === 0) && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-700">No universities returned from the database (showing mock data).</p>
+        </div>
+      )}
+
       {filteredUniversities.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredUniversities.map((uni) => (

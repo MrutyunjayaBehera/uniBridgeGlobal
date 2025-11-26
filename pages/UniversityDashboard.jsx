@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useUserProfile } from '../hooks/useUserProfile';
 import { Navigate } from 'react-router-dom';
 import { Users, CheckCircle, XCircle, Clock, Eye } from 'lucide-react';
 
 const UniversityDashboard = () => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { userRole, loading: profileLoading } = useUserProfile();
   const [applicants] = useState([
     {
       id: 1,
@@ -51,17 +53,26 @@ const UniversityDashboard = () => {
   const [decisions, setDecisions] = useState({});
   const [showDetailModal, setShowDetailModal] = useState(null);
 
-  // Redirect if not logged in or not a university
-  if (!loading && (!user || user.user_metadata?.role !== 'university')) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (loading) {
+  // Redirect if not logged in or not a university (check auth first, skip profile fetch check during redirect)
+  if (authLoading) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4">
         <div className="text-slate-600 text-lg">Loading...</div>
       </div>
     );
+  }
+
+  // Wait for profile role to load before checking access
+  if (profileLoading || userRole === null) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center px-4">
+        <div className="text-slate-600 text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || userRole !== 'university') {
+    return <Navigate to="/login" replace />;
   }
 
   const handleDecision = (applicantId, decision) => {

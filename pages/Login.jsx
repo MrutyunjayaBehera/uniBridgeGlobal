@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useUserProfile } from '../hooks/useUserProfile';
 import { GraduationCap, Building2 } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 const Login = () => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { userRole, loading: profileLoading } = useUserProfile();
   const [selectedRole, setSelectedRole] = useState(null); // null, 'student', 'university'
+
+  const loading = authLoading || profileLoading;
 
   // If already logged in, redirect to appropriate dashboard
   if (!loading && user) {
-    const userRole = user.user_metadata?.role || 'student';
     return <Navigate to={userRole === 'university' ? '/university-dashboard' : '/dashboard'} replace />;
   }
 

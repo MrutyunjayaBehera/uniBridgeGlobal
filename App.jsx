@@ -8,6 +8,7 @@ import UniversityDashboard from './pages/UniversityDashboard';
 import Login from './pages/Login';
 import AIChat from './components/AIChat';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { useUserProfile } from './hooks/useUserProfile';
 import ConfirmModal from './components/shared/ConfirmModal';
 import LoadingModal from './components/shared/LoadingModal';
 import { GraduationCap, LayoutGrid, Sparkles, User, Menu, X, LogOut, Building2 } from 'lucide-react';
@@ -18,8 +19,8 @@ const Navbar = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut, authLoading } = useAuth();
+  const { userRole } = useUserProfile();
   const [isScrolled, setIsScrolled] = useState(false);
-  const userRole = user?.user_metadata?.role || 'student';
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 8);

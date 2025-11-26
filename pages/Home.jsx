@@ -30,7 +30,7 @@ const Home = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <Link 
               to="/explore" 
-              className="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl shadow-lg hover:shadow-xl hover:bg-slate-50 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 animate-attention animate-pulse-glow"
+              className="flex flex-row items-center gap-2 px-8 py-4 bg-white text-blue-600 font-bold rounded-xl shadow-lg hover:shadow-xl hover:bg-slate-50"
             >
               Start Exploring <ArrowRight size={20} />
             </Link>

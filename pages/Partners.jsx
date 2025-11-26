@@ -3,25 +3,39 @@ import { Link } from 'react-router-dom';
 import UniversityCard from '../components/UniversityCard';
 import { MOCK_UNIVERSITIES } from '../constants';
 import '../styles/Partners.css';
+import { useSupabaseUniversities } from '../hooks/useSupabaseUniversities';
 
 const Partners = () => {
-  // generate between 10 and 15 items by cloning MOCK_UNIVERSITIES and varying images / ids
+  const { universities: supabaseUniversities, loading: supabaseLoading } = useSupabaseUniversities();
+
+  // generate between 10 and 15 partners, preferring Supabase universities first
   const partners = useMemo(() => {
     const min = 10;
     const max = 15;
-    const count = Math.floor(Math.random() * (max - min + 1)) + min;
+    const targetCount = Math.floor(Math.random() * (max - min + 1)) + min;
     const out = [];
-    for (let i = 0; i < count; i++) {
-      const src = MOCK_UNIVERSITIES[i % MOCK_UNIVERSITIES.length];
+
+    // prepend any supabase universities first (use as-is)
+    if (supabaseUniversities && supabaseUniversities.length > 0) {
+      for (let i = 0; i < supabaseUniversities.length && out.length < targetCount; i++) {
+        out.push({ ...supabaseUniversities[i], id: `db-${supabaseUniversities[i].id}` });
+      }
+    }
+
+    // fill remaining slots with randomized mock entries
+    let idx = 0;
+    while (out.length < targetCount) {
+      const src = MOCK_UNIVERSITIES[idx % MOCK_UNIVERSITIES.length];
       out.push({
         ...src,
-        id: `${src.id}-${i}`,
-        // vary the image to make the grid feel diverse
-        image: `https://picsum.photos/800/600?random=${Math.floor(Math.random() * 1000) + i}`,
+        id: `${src.id}-mock-${idx}`,
+        image: `https://picsum.photos/800/600?random=${Math.floor(Math.random() * 1000) + idx}`,
       });
+      idx += 1;
     }
+
     return out.sort(() => Math.random() - 0.5);
-  }, []);
+  }, [supabaseUniversities]);
 
   return (
     <div className="partners-page min-h-screen px-6 py-12">
